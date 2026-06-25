@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabla de Turnos · Generador</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <span class="brand-mark">⟟</span>
+    <div>
+      <h1>Hoja de Turnos</h1>
+      <p>Convierte tu tabla de turnos en Markdown e imagen</p>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- COLUMNA IZQUIERDA: INPUT + CONFIG -->
+  <section class="panel panel-input">
+
+    <div class="block">
+      <div class="block-head">
+        <h2>01 — Datos de entrada</h2>
+        <span class="hint">Pega la tabla tal como la copias del portal</span>
+      </div>
+      <textarea id="rawInput" placeholder="Tipo&#9;Estado&#9;Fecha&#9;Tiempo desde&#9;Tiempo hasta&#9;Estado&#10;Turnos&#9;Turno Publicado&#9;13/06/2026&#9;05:45&#9;07:45&#9;Accepted&#10;..."></textarea>
+      <div class="row-actions">
+        <button id="btnProcess" class="btn btn-primary">Procesar tabla</button>
+        <button id="btnSample" class="btn btn-ghost">Cargar ejemplo</button>
+      </div>
+      <p id="parseStatus" class="status"></p>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>02 — Estética de la imagen</h2>
+        <span class="hint">Cambios en tiempo real sobre la previsualización</span>
+      </div>
+
+      <div class="controls-grid">
+
+        <label class="ctrl">
+          <span>Tema</span>
+          <select id="cfgTheme">
+            <option value="paper">Papel cálido</option>
+            <option value="ink">Tinta nocturna</option>
+            <option value="mono">Monocromo</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </label>
+
+        <label class="ctrl">
+          <span>Color de fondo</span>
+          <input type="color" id="cfgBg" value="#f6f1e7">
+        </label>
+
+        <label class="ctrl">
+          <span>Color de tarjeta</span>
+          <input type="color" id="cfgCard" value="#ffffff">
+        </label>
+
+        <label class="ctrl">
+          <span>Color de texto</span>
+          <input type="color" id="cfgText" value="#262220">
+        </label>
+
+        <label class="ctrl">
+          <span>Color de acento</span>
+          <input type="color" id="cfgAccent" value="#3a5a8c">
+        </label>
+
+        <label class="ctrl">
+          <span>Color encabezado tabla</span>
+          <input type="color" id="cfgHeaderBg" value="#262220">
+        </label>
+
+        <label class="ctrl">
+          <span>Tipografía de datos</span>
+          <select id="cfgFontData">
+            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+            <option value="'Inter', sans-serif">Inter</option>
+            <option value="'Source Serif 4', serif">Source Serif</option>
+          </select>
+        </label>
+
+        <label class="ctrl">
+          <span>Tipografía de títulos</span>
+          <select id="cfgFontTitle">
+            <option value="'Source Serif 4', serif">Source Serif</option>
+            <option value="'Inter', sans-serif">Inter</option>
+            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+          </select>
+        </label>
+
+        <label class="ctrl">
+          <span>Tamaño de fuente</span>
+          <input type="range" id="cfgFontSize" min="11" max="20" value="14">
+          <output id="outFontSize">14px</output>
+        </label>
+
+        <label class="ctrl">
+          <span>Radio de esquinas</span>
+          <input type="range" id="cfgRadius" min="0" max="28" value="14">
+          <output id="outRadius">14px</output>
+        </label>
+
+        <label class="ctrl">
+          <span>Espaciado celdas</span>
+          <input type="range" id="cfgPadding" min="4" max="20" value="10">
+          <output id="outPadding">10px</output>
+        </label>
+
+        <label class="ctrl">
+          <span>Grosor de bordes</span>
+          <input type="range" id="cfgBorder" min="0" max="3" value="1" step="1">
+          <output id="outBorder">1px</output>
+        </label>
+
+        <label class="ctrl ctrl-checkbox">
+          <span>Filas alternas (cebra)</span>
+          <input type="checkbox" id="cfgZebra" checked>
+        </label>
+
+        <label class="ctrl ctrl-checkbox">
+          <span>Resaltar fines de semana</span>
+          <input type="checkbox" id="cfgWeekend" checked>
+        </label>
+
+        <label class="ctrl ctrl-checkbox">
+          <span>Mostrar sombra de tarjeta</span>
+          <input type="checkbox" id="cfgShadow" checked>
+        </label>
+
+        <label class="ctrl">
+          <span>Título de la tabla</span>
+          <input type="text" id="cfgTitle" value="Mis turnos" maxlength="40">
+        </label>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- COLUMNA DERECHA: PREVIEW + MARKDOWN -->
+  <section class="panel panel-output">
+
+    <div class="block">
+      <div class="block-head">
+        <h2>03 — Previsualización</h2>
+        <span class="hint" id="dimHint">—</span>
+      </div>
+      <div id="previewWrap" class="preview-wrap">
+        <div id="previewStage" class="preview-stage">
+          <div class="empty-state" id="emptyState">
+            <p>Aún no hay datos.</p>
+            <p>Pega tu tabla a la izquierda y pulsa «Procesar tabla».</p>
+          </div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button id="btnDownloadPng" class="btn btn-primary" disabled>Descargar PNG</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>04 — Markdown</h2>
+        <span class="hint">Listo para pegar en notas o documentación</span>
+      </div>
+      <textarea id="markdownOutput" readonly placeholder="El markdown aparecerá aquí tras procesar la tabla..."></textarea>
+      <div class="row-actions">
+        <button id="btnCopyMd" class="btn btn-ghost" disabled>Copiar Markdown</button>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>Todo se procesa en tu navegador. Nada se envía a ningún servidor.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<script src="parser.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
