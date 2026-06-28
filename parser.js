@@ -226,10 +226,73 @@ function buildMarkdown(scheduleRows) {
 }
 
 /**
+ * Detecta si el texto de entrada es Markdown o TSV.
+ */
+function detectInputFormat(text) {
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    if (/^\|?[- ]+\|[- ]+\|/.test(line.trim())) {
+      return 'markdown';
+    }
+  }
+  const pipeLines = lines.filter(l => l.trim().startsWith('|'));
+  if (pipeLines.length >= 2) return 'markdown';
+  return 'tsv';
+}
+
+/**
+ * Parsea una tabla en formato Markdown.
+ * Misma estructura de salida que parseRawTable().
+ */
+function parseMarkdownTable(text) {
+  const lines = text
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  const rows = [];
+
+  for (const line of lines) {
+    // Saltar línea separadora (|---|---|)
+    if (/^\|?[- ]+\|[- ]+\|/.test(line)) continue;
+
+    // Dividir por pipes y limpiar
+    let fields = line.split('|').map(f => f.trim());
+    // Eliminar primer y último si están vacíos (pipes externos)
+    if (fields.length > 0 && fields[0] === '') fields.shift();
+    if (fields.length > 0 && fields[fields.length - 1] === '') fields.pop();
+
+    if (fields.length < 3) continue;
+
+    // Saltar línea de cabecera
+    if (/^tipo$/i.test(fields[0]) && /^estado$/i.test(fields[1] || '')) {
+      continue;
+    }
+
+    // Validar fecha
+    if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(fields[2] || '')) {
+      continue;
+    }
+
+    rows.push({
+      tipo: fields[0] || '',
+      estado: fields[1] || '',
+      fecha: fields[2] || '',
+      desde: fields[3] || '',
+      hasta: fields[4] || '',
+      estadoFinal: fields[5] || ''
+    });
+  }
+
+  return rows;
+}
+
+/**
  * Punto de entrada: texto crudo -> { rows, markdown }
  */
 function processInput(text) {
-  const rawRows = parseRawTable(text);
+  const format = detectInputFormat(text);
+  const rawRows = format === 'markdown' ? parseMarkdownTable(text) : parseRawTable(text);
   if (rawRows.length === 0) {
     throw new Error('No se encontraron filas válidas. Comprueba el formato de la tabla.');
   }

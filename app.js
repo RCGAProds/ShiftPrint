@@ -9,16 +9,24 @@ Turnos	Turno Publicado	14/06/2026	09:45	14:00	Accepted
 Día Libre	Día Libre	15/06/2026			Accepted
 Día Libre	Día Libre	16/06/2026			Accepted`;
 
+const SAMPLE_MD_INPUT = `| Tipo | Estado | Fecha | Tiempo desde | Tiempo hasta | Estado |
+|------|--------|-------|-------------|--------------|--------|
+| Turnos | Turno Publicado | 13/06/2026 | 05:45 | 07:45 | Accepted |
+| Permiso (CU) | Approbado | 13/06/2026 | 09:00 | 11:00 | Accepted |
+| Turnos | Turno Publicado | 14/06/2026 | 09:45 | 14:00 | Accepted |
+| Día Libre | Día Libre | 15/06/2026 | | | Accepted |
+| Día Libre | Día Libre | 16/06/2026 | | | Accepted |`;
+
 let currentRows = [];
 
 const els = {
   rawInput: document.getElementById('rawInput'),
   btnProcess: document.getElementById('btnProcess'),
   btnSample: document.getElementById('btnSample'),
+  btnSampleMd: document.getElementById('btnSampleMd'),
   parseStatus: document.getElementById('parseStatus'),
 
   cfgTheme: document.getElementById('cfgTheme'),
-  cfgBg: document.getElementById('cfgBg'),
   cfgCard: document.getElementById('cfgCard'),
   cfgText: document.getElementById('cfgText'),
   cfgAccent: document.getElementById('cfgAccent'),
@@ -53,7 +61,6 @@ const els = {
  */
 function readConfig() {
   return {
-    bg: els.cfgBg.value,
     card: els.cfgCard.value,
     text: els.cfgText.value,
     accent: els.cfgAccent.value,
@@ -78,7 +85,6 @@ function applyThemePreset(name) {
   if (name === 'custom') return;
   const preset = THEME_PRESETS[name];
   if (!preset) return;
-  els.cfgBg.value = preset.bg;
   els.cfgCard.value = preset.card;
   els.cfgText.value = preset.text;
   els.cfgAccent.value = preset.accent;
@@ -201,6 +207,11 @@ els.btnSample.addEventListener('click', () => {
   processInputText();
 });
 
+els.btnSampleMd.addEventListener('click', () => {
+  els.rawInput.value = SAMPLE_MD_INPUT;
+  processInputText();
+});
+
 els.btnCopyMd.addEventListener('click', copyMarkdown);
 els.btnDownloadPng.addEventListener('click', downloadPng);
 
@@ -212,7 +223,7 @@ els.cfgTheme.addEventListener('change', () => {
 
 // Config: cualquier otro control -> re-render en tiempo real
 const liveControls = [
-  els.cfgBg, els.cfgCard, els.cfgText, els.cfgAccent, els.cfgHeaderBg,
+  els.cfgCard, els.cfgText, els.cfgAccent, els.cfgHeaderBg,
   els.cfgFontData, els.cfgFontTitle, els.cfgFontSize, els.cfgRadius,
   els.cfgPadding, els.cfgBorder, els.cfgZebra, els.cfgWeekend,
   els.cfgShadow, els.cfgTitle
@@ -225,7 +236,7 @@ liveControls.forEach(el => {
   el.addEventListener(eventName, () => {
     syncOutputLabels();
     // Si el usuario cambia manualmente un color, pasar el tema a "personalizado"
-    if (['cfgBg', 'cfgCard', 'cfgText', 'cfgAccent', 'cfgHeaderBg'].includes(el.id)) {
+    if (['cfgCard', 'cfgText', 'cfgAccent', 'cfgHeaderBg'].includes(el.id)) {
       els.cfgTheme.value = 'custom';
     }
     refreshPreview();

@@ -34,12 +34,13 @@
     <div class="block">
       <div class="block-head">
         <h2>01 — Datos de entrada</h2>
-        <span class="hint">Pega la tabla tal como la copias del portal</span>
+        <span class="hint">Pega la tabla tal cual la copias del portal o en Markdown</span>
       </div>
       <textarea id="rawInput" placeholder="Tipo&#9;Estado&#9;Fecha&#9;Tiempo desde&#9;Tiempo hasta&#9;Estado&#10;Turnos&#9;Turno Publicado&#9;13/06/2026&#9;05:45&#9;07:45&#9;Accepted&#10;..."></textarea>
       <div class="row-actions">
         <button id="btnProcess" class="btn btn-primary">Procesar tabla</button>
-        <button id="btnSample" class="btn btn-ghost">Cargar ejemplo</button>
+        <button id="btnSample" class="btn btn-ghost">Cargar ejemplo TSV</button>
+        <button id="btnSampleMd" class="btn btn-ghost">Cargar ejemplo MD</button>
       </div>
       <p id="parseStatus" class="status"></p>
     </div>
@@ -67,11 +68,6 @@
             <option value="raspberry_space">Raspberry Space</option>
             <option value="custom">Personalizado</option>
           </select>
-        </label>
-
-        <label class="ctrl">
-          <span>Color de fondo</span>
-          <input type="color" id="cfgBg" value="#f0f2f5">
         </label>
 
         <label class="ctrl">
