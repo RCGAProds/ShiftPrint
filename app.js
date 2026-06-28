@@ -1,6 +1,7 @@
 /* app.js
  * Orquesta el flujo: input -> parser -> estado -> render -> export.
  */
+document.addEventListener('DOMContentLoaded', () => {
 
 const SAMPLE_INPUT = `Tipo	Estado	Fecha	Tiempo desde	Tiempo hasta	Estado
 Turnos	Turno Publicado	13/06/2026	05:45	07:45	Accepted
@@ -245,3 +246,5 @@ liveControls.forEach(el => {
 
 // Inicialización
 syncOutputLabels();
+
+});
