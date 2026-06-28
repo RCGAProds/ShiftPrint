@@ -4,12 +4,33 @@
  */
 
 const THEME_PRESETS = {
-  paper: {
-    bg: '#efe9dd',
+  oficina: {
+    bg: '#f0f2f5',
     card: '#ffffff',
-    text: '#262220',
-    accent: '#3a5a8c',
-    headerBg: '#262220'
+    text: '#1e2330',
+    accent: '#3b4cca',
+    headerBg: '#1e2330'
+  },
+  espresso: {
+    bg: '#f2e8d9',
+    card: '#fdf8f2',
+    text: '#2c1d0e',
+    accent: '#7a4520',
+    headerBg: '#3d2210'
+  },
+  mono: {
+    bg: '#e9e9e9',
+    card: '#ffffff',
+    text: '#1a1a1a',
+    accent: '#1a1a1a',
+    headerBg: '#1a1a1a'
+  },
+  hospital: {
+    bg: '#e8f0ec',
+    card: '#f7fbf8',
+    text: '#1b2e24',
+    accent: '#2d7a4f',
+    headerBg: '#2d7a4f'
   },
   ink: {
     bg: '#15171c',
@@ -18,13 +39,41 @@ const THEME_PRESETS = {
     accent: '#7aa2f7',
     headerBg: '#2a2e38'
   },
-  mono: {
-    bg: '#e9e9e9',
-    card: '#ffffff',
-    text: '#1a1a1a',
-    accent: '#1a1a1a',
-    headerBg: '#1a1a1a'
-  }
+  terminal: {
+    bg: '#0d0e0b',
+    card: '#141510',
+    text: '#e8c96a',
+    accent: '#c8a83a',
+    headerBg: '#1e1d14'
+  },
+  blueprint: {
+    bg: '#1a2640',
+    card: '#1f2e50',
+    text: '#d4e4f7',
+    accent: '#5ba3d9',
+    headerBg: '#0f1a30'
+  },
+  shadow_clay: {
+  bg: '#1a1a1a',
+  card: '#272727',
+  text: '#D4AA7D',
+  accent: '#D4AA7D',
+  headerBg: '#0e0e0e'
+  },
+  icy_gunmetal: {
+  bg: '#2a2d30',
+  card: '#35393C',
+  text: '#A4D8FF',
+  accent: '#A4D8FF',
+  headerBg: '#1e2124'
+  },
+  raspberry_space: {
+  bg: '#010e1c',
+  card: '#012641',
+  text: '#f0f4f8',
+  accent: '#EE005A',
+  headerBg: '#EE005A'
+  },
 };
 
 /**

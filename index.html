@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
@@ -16,7 +21,7 @@
     <span class="brand-mark">⟟</span>
     <div>
       <h1>Hoja de Turnos</h1>
-      <p>Convierte tu tabla de turnos en Markdown e imagen</p>
+      <p>Convierte tu tabla de turnos en Imagen y Markdown</p>
     </div>
   </div>
 </header>
@@ -50,16 +55,23 @@
         <label class="ctrl">
           <span>Tema</span>
           <select id="cfgTheme">
-            <option value="paper">Papel cálido</option>
-            <option value="ink">Tinta nocturna</option>
+            <option value="oficina">Papel de oficina</option>
+            <option value="espresso">Café de mañana</option>
             <option value="mono">Monocromo</option>
+            <option value="hospital">Pizarra hospital</option>
+            <option value="ink">Tinta nocturna</option>
+            <option value="terminal">Terminal nocturno</option>
+            <option value="blueprint">Blueprint industrial</option>
+            <option value="shadow_clay">Shadow Clay</option>
+            <option value="icy_gunmetal">Icy Gunmetal</option>
+            <option value="raspberry_space">Raspberry Space</option>
             <option value="custom">Personalizado</option>
           </select>
         </label>
 
         <label class="ctrl">
           <span>Color de fondo</span>
-          <input type="color" id="cfgBg" value="#f6f1e7">
+          <input type="color" id="cfgBg" value="#f0f2f5">
         </label>
 
         <label class="ctrl">
@@ -69,34 +81,40 @@
 
         <label class="ctrl">
           <span>Color de texto</span>
-          <input type="color" id="cfgText" value="#262220">
+          <input type="color" id="cfgText" value="#1e2330">
         </label>
 
         <label class="ctrl">
           <span>Color de acento</span>
-          <input type="color" id="cfgAccent" value="#3a5a8c">
+          <input type="color" id="cfgAccent" value="#3b4cca">
         </label>
 
         <label class="ctrl">
           <span>Color encabezado tabla</span>
-          <input type="color" id="cfgHeaderBg" value="#262220">
+          <input type="color" id="cfgHeaderBg" value="#1e2330">
         </label>
 
         <label class="ctrl">
           <span>Tipografía de datos</span>
           <select id="cfgFontData">
-            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
             <option value="'Inter', sans-serif">Inter</option>
+            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
             <option value="'Source Serif 4', serif">Source Serif</option>
+            <option value="'DM Mono', monospace">DM Mono</option>
+            <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+            <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
           </select>
         </label>
 
         <label class="ctrl">
           <span>Tipografía de títulos</span>
           <select id="cfgFontTitle">
-            <option value="'Source Serif 4', serif">Source Serif</option>
             <option value="'Inter', sans-serif">Inter</option>
+            <option value="'Source Serif 4', serif">Source Serif</option>
             <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+            <option value="'DM Sans', sans-serif">DM Sans</option>
+            <option value="'IBM Plex Sans Condensed', sans-serif">IBM Plex Sans Condensed</option>
+            <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
           </select>
         </label>
 
