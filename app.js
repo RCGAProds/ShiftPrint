@@ -25,6 +25,7 @@ const els = {
   btnProcess: document.getElementById('btnProcess'),
   btnSample: document.getElementById('btnSample'),
   btnSampleMd: document.getElementById('btnSampleMd'),
+  btnClear: document.getElementById('btnClear'),
   parseStatus: document.getElementById('parseStatus'),
 
   cfgTheme: document.getElementById('cfgTheme'),
@@ -211,6 +212,17 @@ els.btnSample.addEventListener('click', () => {
 els.btnSampleMd.addEventListener('click', () => {
   els.rawInput.value = SAMPLE_MD_INPUT;
   processInputText();
+});
+
+els.btnClear.addEventListener('click', () => {
+  els.rawInput.value = '';
+  currentRows = [];
+  els.markdownOutput.value = '';
+  els.btnCopyMd.disabled = true;
+  els.btnDownloadPng.disabled = true;
+  els.parseStatus.textContent = '';
+  els.parseStatus.className = 'status';
+  refreshPreview();
 });
 
 els.btnCopyMd.addEventListener('click', copyMarkdown);
