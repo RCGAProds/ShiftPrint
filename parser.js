@@ -288,7 +288,11 @@ function parseMarkdownTable(text) {
 }
 
 /**
- * Punto de entrada: texto crudo -> { rows, markdown }
+ * Punto de entrada: texto crudo -> { rows, markdown, rawByDate }
+ *
+ * rawByDate: objeto { 'DD/MM/YYYY': [{tipo, desde, hasta}, ...] }
+ * Expuesto para que app.js pueda construir la codificación compacta del QR
+ * sin necesidad de reparse.
  */
 function processInput(text) {
   const format = detectInputFormat(text);
@@ -298,5 +302,13 @@ function processInput(text) {
   }
   const rows = buildScheduleRows(rawRows);
   const markdown = buildMarkdown(rows);
-  return { rows, markdown };
+
+  // Construir rawByDate: agrupa las filas originales por fecha completa (DD/MM/YYYY)
+  const rawByDate = {};
+  for (const r of rawRows) {
+    if (!rawByDate[r.fecha]) rawByDate[r.fecha] = [];
+    rawByDate[r.fecha].push({ tipo: r.tipo, desde: r.desde, hasta: r.hasta });
+  }
+
+  return { rows, markdown, rawByDate };
 }

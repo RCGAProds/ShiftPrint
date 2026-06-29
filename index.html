@@ -160,10 +160,10 @@
         </label>
 
         <label class="ctrl">
-          <span>Alineación del título</span>
+          <span>Alineamiento del título</span>
           <select id="cfgTitleAlign">
             <option value="left">Izquierda</option>
-            <option value="center" selected>Centro</option>
+            <option value="center">Centrado</option>
           </select>
         </label>
 
@@ -190,6 +190,7 @@
       </div>
       <div class="row-actions">
         <button id="btnDownloadPng" class="btn btn-primary" disabled>Descargar PNG</button>
+        <button id="btnShareQr" class="btn btn-ghost" disabled>📱 Compartir por QR</button>
       </div>
     </div>
 
@@ -208,12 +209,53 @@
 
 </main>
 
+<!-- MODAL QR -->
+<div id="qrModal" class="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle" hidden>
+  <div class="qr-modal-box">
+    <div class="qr-modal-head">
+      <h3 id="qrModalTitle">Compartir imagen en móvil</h3>
+      <button id="qrModalClose" class="qr-close-btn" aria-label="Cerrar">✕</button>
+    </div>
+    <p class="qr-instructions">
+      Escanea este código QR con tu móvil. Se abrirá la misma vista y podrás descargar la imagen directamente desde el dispositivo.
+    </p>
+    <div id="qrCodeContainer" class="qr-code-container">
+      <canvas id="qrCanvas"></canvas>
+    </div>
+    <p class="qr-meta">
+      <span class="qr-url-label" id="qrUrlLabel"></span>
+      <span class="qr-complexity-badge" id="qrComplexityBadge"></span>
+    </p>
+    <div class="qr-modal-actions">
+      <button id="btnCopyQrLink" class="btn btn-ghost">Copiar enlace</button>
+    </div>
+    <p class="qr-note">El enlace contiene todos los datos de tu tabla. Nada se envía a ningún servidor.</p>
+  </div>
+</div>
+<div id="qrModalBackdrop" class="qr-modal-backdrop" hidden></div>
+
+<!-- MODO MÓVIL: banner de descarga directa -->
+<div id="mobileDownloadBanner" class="mobile-download-banner" hidden>
+  <div class="mdb-inner">
+    <span class="mdb-icon">📲</span>
+    <div class="mdb-text">
+      <strong>Tabla compartida</strong>
+      <span>Tu imagen está lista para descargar</span>
+    </div>
+    <button id="btnMobileDownload" class="btn btn-primary">Descargar PNG</button>
+  </div>
+</div>
+
 <footer class="app-footer">
   <p>Todo se procesa en tu navegador. Nada se envía a ningún servidor.</p>
   <p>Web creada por <a href="https://rcgaprods.github.io" target="_blank" rel="noopener noreferrer">Carlos (RCGA_Prods)</a></p>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<!-- LZ-String: compresión para URLs compactas (local) -->
+<script src="lz-string.min.js"></script>
+<!-- QRious: generador de QR puro JS, sin dependencias (local) -->
+<script src="qrious.min.js"></script>
 <script src="parser.js"></script>
 <script src="render.js"></script>
 <script src="app.js"></script>
