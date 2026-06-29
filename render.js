@@ -128,6 +128,7 @@ function renderScheduleCard(container, scheduleRows, config) {
   title.textContent = config.title || 'Mis turnos';
   title.style.fontFamily = config.fontTitle;
   title.style.color = config.text;
+  title.style.textAlign = config.titleAlign;
   inner.appendChild(title);
 
   // Tabla

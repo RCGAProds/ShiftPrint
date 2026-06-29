@@ -280,6 +280,7 @@ textarea:focus{
   font-size: calc(var(--cell-font, 14px) * 1.5);
   font-weight: 700;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 .shift-card table{
   border-collapse: collapse;
