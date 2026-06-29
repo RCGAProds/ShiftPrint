@@ -4,6 +4,10 @@
  */
 
 const DIAS_SEMANA = ['D', 'L', 'M', 'X', 'J', 'V', 'S']; // 0=Domingo ... 6=Sábado
+const MONTH_NAMES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
 
 /**
  * Parsea el bloque de texto en filas crudas.
@@ -143,12 +147,22 @@ function buildScheduleRows(rawRows) {
     // Recoger turnos con horas válidas, ordenados por hora de entrada
     const turnos = rowsForDate
       .filter(r => timeToMinutes(r.desde) != null && timeToMinutes(r.hasta) != null)
-      .map(r => ({
-        desde: timeToMinutes(r.desde),
-        hasta: timeToMinutes(r.hasta),
-        desdeStr: r.desde,
-        hastaStr: r.hasta
-      }))
+      .map(r => {
+        const desde = timeToMinutes(r.desde);
+        let hasta = timeToMinutes(r.hasta);
+        let esNocturno = false;
+        if (hasta !== null && desde !== null && hasta < desde) {
+          hasta += 1440;
+          esNocturno = true;
+        }
+        return {
+          desde,
+          hasta,
+          desdeStr: r.desde,
+          hastaStr: r.hasta,
+          esNocturno
+        };
+      })
       .sort((a, b) => a.desde - b.desde);
 
     if (turnos.length === 0) {
@@ -182,6 +196,8 @@ function buildScheduleRows(rawRows) {
       pausaLabel = minutesToLabel(pausaTotal);
     }
 
+    const esNocturno = turnos.some(t => t.esNocturno);
+
     result.push({
       dia,
       fecha: fechaCorta,
@@ -189,7 +205,8 @@ function buildScheduleRows(rawRows) {
       salidas,
       horasTotales: minutesToLabel(totalMins),
       pausa: pausaLabel,
-      esLibre: false
+      esLibre: false,
+      esNocturno
     });
   }
 
@@ -288,7 +305,27 @@ function parseMarkdownTable(text) {
 }
 
 /**
- * Punto de entrada: texto crudo -> { rows, markdown, rawByDate }
+ * Detecta si todas las fechas pertenecen a un mismo mes calendario
+ * y devuelve un título formateado como "Turnos · Junio 2026",
+ * o null si no se cumple el criterio (mín. 28 días).
+ */
+function detectMonthTitle(rawByDate) {
+  const fechas = Object.keys(rawByDate);
+  if (fechas.length < 28) return null;
+
+  const months = new Set(fechas.map(f => {
+    const parts = f.split('/');
+    return `${parts[1]}/${parts[2]}`;
+  }));
+  if (months.size !== 1) return null;
+
+  const [m, y] = months.values().next().value.split('/');
+  const monthName = MONTH_NAMES[parseInt(m, 10) - 1];
+  return `Turnos · ${monthName} ${y}`;
+}
+
+/**
+ * Punto de entrada: texto crudo -> { rows, markdown, rawByDate, monthTitle }
  *
  * rawByDate: objeto { 'DD/MM/YYYY': [{tipo, desde, hasta}, ...] }
  * Expuesto para que app.js pueda construir la codificación compacta del QR
@@ -310,5 +347,7 @@ function processInput(text) {
     rawByDate[r.fecha].push({ tipo: r.tipo, desde: r.desde, hasta: r.hasta });
   }
 
-  return { rows, markdown, rawByDate };
+  const monthTitle = detectMonthTitle(rawByDate);
+
+  return { rows, markdown, rawByDate, monthTitle };
 }

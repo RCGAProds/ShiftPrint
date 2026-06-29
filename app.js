@@ -160,11 +160,15 @@ function processInputText() {
   }
 
   try {
-    const { rows, markdown, rawByDate } = processInput(text);
+    const { rows, markdown, rawByDate, monthTitle } = processInput(text);
     currentRows = rows;
     rawRowsByDate = rawByDate || {};
     els.markdownOutput.value = markdown;
     els.btnCopyMd.disabled = false;
+
+    if (monthTitle && els.cfgTitle.value === 'Mis turnos') {
+      els.cfgTitle.value = monthTitle;
+    }
 
     els.parseStatus.textContent = `Procesado correctamente: ${rows.length} día(s) detectados.`;
     els.parseStatus.className = 'status ok';
@@ -488,9 +492,13 @@ function tryRestoreFromHash() {
   if (!rawText) return;
 
   try {
-    const { rows, markdown, rawByDate } = processInput(rawText);
+    const { rows, markdown, rawByDate, monthTitle } = processInput(rawText);
     currentRows = rows;
     rawRowsByDate = rawByDate || {};
+
+    if (monthTitle && els.cfgTitle.value === 'Mis turnos') {
+      els.cfgTitle.value = monthTitle;
+    }
 
     els.rawInput.value = rawText;
     els.markdownOutput.value = markdown;
