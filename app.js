@@ -27,6 +27,7 @@ let currentRows = [];
 // Guardamos también los raw rows por fecha para poder codificar el QR
 // con tiempos exactos (currentRows ya tiene entradas/salidas agregadas como string)
 let rawRowsByDate = {}; // { 'DD/MM/YYYY': [{desde, hasta, tipo}, ...] }
+let _updatingFromMarkdown = false;
 
 const els = {
   rawInput: document.getElementById('rawInput'),
@@ -163,7 +164,9 @@ function processInputText() {
     const { rows, markdown, rawByDate, monthTitle } = processInput(text);
     currentRows = rows;
     rawRowsByDate = rawByDate || {};
+    _updatingFromMarkdown = true;
     els.markdownOutput.value = markdown;
+    _updatingFromMarkdown = false;
     els.btnCopyMd.disabled = false;
 
     if (monthTitle && els.cfgTitle.value === 'Mis turnos') {
@@ -179,7 +182,9 @@ function processInputText() {
     els.parseStatus.className = 'status error';
     currentRows = [];
     rawRowsByDate = {};
+    _updatingFromMarkdown = true;
     els.markdownOutput.value = '';
+    _updatingFromMarkdown = false;
     els.btnCopyMd.disabled = true;
     refreshPreview();
   }
@@ -228,6 +233,112 @@ async function copyMarkdown() {
   } catch (err) {
     els.markdownOutput.select();
   }
+}
+
+/* =========================================================
+   MARKDOWN EDITABLE → PREVIEW
+   ========================================================= */
+
+function debounce(fn, ms) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+/**
+ * Normaliza una hora HH:MM desplazando minutos >= 60 a la hora siguiente.
+ * Ej: "04:70" → "05:10", "04:00" → "04:00" (sin cambio).
+ */
+function normalizeTime(t) {
+  const m = t.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return t;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (min < 60) return t;
+  h += Math.floor(min / 60);
+  return `${String(h).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+}
+
+/**
+ * Parsea el markdown generado extrayendo solo Fecha, Entrada(s), Salida(s).
+ * El resto (Día, Horas totales, Pausa, esLibre, esNocturno) se recalcula
+ * mediante buildScheduleRows() + buildMarkdown() y se devuelve también el
+ * markdown regenerado para sobrescribir el textarea.
+ */
+function parseGeneratedMarkdown(mdText) {
+  const lines = mdText.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && !/^\|?[- ]+\|[- ]+\|/.test(l));
+
+  const rowDefs = [];
+  let headerPassed = false;
+  const currentYear = new Date().getFullYear();
+
+  for (const line of lines) {
+    let cells = line.split('|').map(c => c.trim());
+    if (cells.length >= 2 && cells[0] === '') cells.shift();
+    if (cells.length >= 2 && cells[cells.length - 1] === '') cells.pop();
+
+    if (cells.length < 6) continue;
+    if (!headerPassed) { headerPassed = true; continue; }
+
+    const fecha = cells[1] || '';
+    const entradas = cells[2] || '';
+    const salidas = cells[3] || '';
+
+    const [d, m] = fecha.split('/').map(s => s.padStart(2, '0'));
+    if (!d || !m) continue;
+    const fullDate = `${d}/${m}/${currentYear}`;
+
+    const entradaList = entradas.split(/\s*\/\s*/).map(s => s.trim()).filter(s => s && s !== '—' && s !== '-');
+    const salidaList = salidas.split(/\s*\/\s*/).map(s => s.trim()).filter(s => s && s !== '—' && s !== '-');
+
+    const pairs = [];
+    const pairCount = Math.max(entradaList.length, salidaList.length);
+    for (let i = 0; i < pairCount; i++) {
+      const e = entradaList[i];
+      const s = salidaList[i];
+      if (e && s) {
+        pairs.push({ desde: normalizeTime(e), hasta: normalizeTime(s) });
+      }
+    }
+
+    if (pairs.length === 0) {
+      rowDefs.push({ fecha: fullDate, desde: '', hasta: '', libre: true });
+    } else {
+      for (const p of pairs) {
+        rowDefs.push({ fecha: fullDate, desde: p.desde, hasta: p.hasta, libre: false });
+      }
+    }
+  }
+
+  if (rowDefs.length === 0) {
+    throw new Error('No se pudieron extraer filas del Markdown. Revisa el formato.');
+  }
+
+  // Construir rawRows en el formato que espera buildScheduleRows()
+  const rawRows = rowDefs.map(r => ({
+    tipo: r.libre ? 'Día Libre' : 'Turnos',
+    estado: r.libre ? 'Día Libre' : 'Turno Publicado',
+    fecha: r.fecha,
+    desde: r.desde,
+    hasta: r.hasta,
+    estadoFinal: 'Accepted'
+  }));
+
+  const rows = buildScheduleRows(rawRows);
+  const markdown = buildMarkdown(rows);
+
+  // Reconstruir rawByDate para compatibilidad con QR
+  const rawByDate = {};
+  for (const r of rawRows) {
+    if (!rawByDate[r.fecha]) rawByDate[r.fecha] = [];
+    rawByDate[r.fecha].push({ tipo: r.tipo, desde: r.desde, hasta: r.hasta });
+  }
+
+  return { rows, rawByDate, markdown };
 }
 
 /* =========================================================
@@ -501,7 +612,9 @@ function tryRestoreFromHash() {
     }
 
     els.rawInput.value = rawText;
+    _updatingFromMarkdown = true;
     els.markdownOutput.value = markdown;
+    _updatingFromMarkdown = false;
     els.btnCopyMd.disabled = false;
 
     syncOutputLabels();
@@ -626,7 +739,9 @@ els.btnClear.addEventListener('click', () => {
   els.rawInput.value = '';
   currentRows = [];
   rawRowsByDate = {};
+  _updatingFromMarkdown = true;
   els.markdownOutput.value = '';
+  _updatingFromMarkdown = false;
   els.btnCopyMd.disabled = true;
   els.btnDownloadPng.disabled = true;
   els.btnShareQr.disabled = true;
@@ -649,6 +764,33 @@ document.addEventListener('keydown', e => {
 
 // Mobile banner
 els.btnMobileDownload.addEventListener('click', mobileDownloadPng);
+
+// Markdown editable → re-render preview on edit
+const markdownInputHandler = debounce(() => {
+  if (_updatingFromMarkdown) return;
+  const md = els.markdownOutput.value.trim();
+  if (!md) return;
+
+  try {
+    const parsed = parseGeneratedMarkdown(md);
+    currentRows = parsed.rows;
+    rawRowsByDate = parsed.rawByDate;
+    els.btnCopyMd.disabled = false;
+    refreshPreview();
+
+    _updatingFromMarkdown = true;
+    els.markdownOutput.value = parsed.markdown;
+    _updatingFromMarkdown = false;
+
+    els.parseStatus.textContent = `Vista y Markdown actualizados · ${currentRows.length} día(s).`;
+    els.parseStatus.className = 'status ok';
+  } catch (err) {
+    els.parseStatus.textContent = err.message || 'Error al interpretar el Markdown.';
+    els.parseStatus.className = 'status error';
+  }
+}, 400);
+
+els.markdownOutput.addEventListener('input', markdownInputHandler);
 
 // Config: theme preset
 els.cfgTheme.addEventListener('change', () => {
