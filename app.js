@@ -502,17 +502,29 @@ function openQrModal() {
 
   const url = buildShareUrl();
   const complexity = estimateQrComplexity(url.length);
+  const size = 300;
+  const padding = 16;
 
-  // Generar QR: canvas de 300px, corrección L (menos módulos = más legible)
+  const temp = document.createElement('canvas');
+  const innerSize = size - 2 * padding;
+  temp.width = temp.height = innerSize;
+
   new QRious({
-    element: els.qrCanvas,
+    element: temp,
     value: url,
-    size: 300,
+    size: innerSize,
     level: 'L',
     background: '#fbf8f2',
     foreground: '#262220',
-    padding: 16
+    padding: null
   });
+
+  const canvas = els.qrCanvas;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.height = size;
+  ctx.fillStyle = '#fbf8f2';
+  ctx.fillRect(0, 0, size, size);
+  ctx.drawImage(temp, padding, padding);
 
   // Mostrar indicador de complejidad
   if (els.qrComplexityBadge) {
